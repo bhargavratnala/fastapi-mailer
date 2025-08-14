@@ -4,6 +4,7 @@ import smtplib
 from email.mime.text import MIMEText
 from pydantic import BaseModel
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 if not dotenv.load_dotenv(".env"):
     raise ValueError("Failed to load environment variables")
@@ -16,14 +17,22 @@ class MAILRequest(BaseModel):
 def get_key(env_var: str):
     return os.getenv(env_var) or dotenv.get_key(".env", env_var)
 
-app = FastAPI()
-
 SENDER_MAIL = get_key("MAIL")
 RECEIVER_MAIL = get_key("MAIL")
 PASSWORD = get_key("PASSWORD")
 MAIL_SERVER = get_key("MAIL_SERVER")
 MAIL_PORT = get_key("MAIL_PORT")
 REPLY = get_key("REPLY")
+DOMAIN = get_key("DOMAIN")
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[DOMAIN] if DOMAIN else [],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if not all([SENDER_MAIL, RECEIVER_MAIL, PASSWORD, MAIL_SERVER, MAIL_PORT, REPLY]):
     raise ValueError("Missing required environment variables")
