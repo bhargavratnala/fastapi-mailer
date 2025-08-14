@@ -13,20 +13,22 @@ class MAILRequest(BaseModel):
     body: str
     mail: str
 
-dotenv.load_dotenv(".env")
+def get_key(env_var: str):
+    return os.getenv(env_var) or dotenv.get_key(".env", env_var)
 
 app = FastAPI()
 
-SENDER_MAIL = dotenv.get_key("MAIL")
-RECEIVER_MAIL = dotenv.get_key("MAIL")
-PASSWORD = dotenv.get_key("PASSWORD")
-MAIL_SERVER = dotenv.get_key("MAIL_SERVER")
-MAIL_PORT = dotenv.get_key("MAIL_PORT")
+SENDER_MAIL = get_key("MAIL")
+RECEIVER_MAIL = get_key("MAIL")
+PASSWORD = get_key("PASSWORD")
+MAIL_SERVER = get_key("MAIL_SERVER")
+MAIL_PORT = get_key("MAIL_PORT")
+REPLY = get_key("REPLY")
 
-if not all([SENDER_MAIL, RECEIVER_MAIL, PASSWORD, MAIL_SERVER, MAIL_PORT]):
+if not all([SENDER_MAIL, RECEIVER_MAIL, PASSWORD, MAIL_SERVER, MAIL_PORT, REPLY]):
     raise ValueError("Missing required environment variables")
 
-reply_msg = MIMEText("Thank you for contacting us!. We will get back to you shortly.")
+reply_msg = MIMEText(REPLY)
 reply_msg["Subject"] = "Thank you for contacting us!"
 reply_msg["From"] = RECEIVER_MAIL
 
