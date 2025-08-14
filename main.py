@@ -32,6 +32,10 @@ reply_msg = MIMEText(REPLY)
 reply_msg["Subject"] = "Thank you for contacting us!"
 reply_msg["From"] = RECEIVER_MAIL
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the FastAPI Mailer"}
+
 @app.post("/send_mail")
 def send_mail(mail: MAILRequest):
     msg = MIMEText(mail.body)
