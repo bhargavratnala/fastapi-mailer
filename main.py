@@ -51,7 +51,7 @@ def send_mail(req: Request, mail: MAILRequest):
     if req.headers.get('origin') not in DOMAIN:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Origin not allowed")
 
-    msg = MIMEText(mail.body)
+    msg = MIMEText(f"{mail.body}\n\nYou can reply to this email at {mail.mail}")
     msg["Subject"] = mail.subject
     msg["From"] = SENDER_MAIL
     msg["To"] = RECEIVER_MAIL
