@@ -1,5 +1,5 @@
 import dotenv
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Request, HTTPException, status
 import smtplib
 from email.mime.text import MIMEText
 from pydantic import BaseModel
@@ -48,8 +48,8 @@ def read_root():
 @app.post("/send_mail")
 def send_mail(req: Request, mail: MAILRequest):
 
-    if req.headers['origin'] not in DOMAIN:
-        return {"error": "Origin not allowed"}
+    if req.headers.get('origin') not in DOMAIN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Origin not allowed")
 
     msg = MIMEText(mail.body)
     msg["Subject"] = mail.subject
@@ -59,10 +59,10 @@ def send_mail(req: Request, mail: MAILRequest):
     try:
         with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT) as smtp:
             smtp.login(SENDER_MAIL, PASSWORD)
-            # smtp.send_message(msg)
+            smtp.send_message(msg)
 
             reply_msg["To"] = mail.mail
-            # smtp.send_message(reply_msg)
+            smtp.send_message(reply_msg)
         return {"message": "mail sent successfully!"}
     except Exception as e:
         return {"error": f"Error sending mail: {e}"}
